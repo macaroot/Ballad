@@ -21,12 +21,13 @@ at the top of the file.
 Headers are used only for declaring extern types. Each variable
 and function includes a comment about its use and what source uses
 them. Every header is accompanied by a source which defines its
-declarations. These sources have H -postfix. Headers have no
-includes, if possible.
+declarations.
 
 **.c**
 Sources are named after the header that most influences them.
-Sources have only the necessary includes.
+Variables and functions initialized in the source should be at
+the top of the file, if possible. Sources have only the necessary
+includes.
 
 **Naming conventions**
 The following rules don't apply to things specifically derived from
