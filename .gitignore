@@ -4,4 +4,4 @@ skel/
 bin/
 tags
 note
-**.swp
+.*.sw*
