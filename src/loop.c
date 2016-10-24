@@ -8,8 +8,6 @@
 //#include <SDL_image.h>
 //#include <SDL_ttf.h>
 //#include <SDL_mixer.h>
-// OpenGL includes
-#include <glew.h>
 // Standard C includes
 #include <stdio.h>
 // .h includes
@@ -29,6 +27,10 @@
 // Used by game.c
 void theLoop()
 {
+    // Load media
+    loadMedia();
+
+    // Clear screen
     while( eCurrentState != QUIT )
     {
         inputManager();

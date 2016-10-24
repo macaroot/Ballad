@@ -8,8 +8,6 @@
 //#include <SDL_image.h>
 //#include <SDL_ttf.h>
 //#include <SDL_mixer.h>
-// OpenGL includes
-#include <glew.h>
 // Standard C includes
 #include <stdio.h>
 // .h includes

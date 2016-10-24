@@ -1,5 +1,7 @@
-sound/
-font/
+include/sound/
+include/font/
+include/visual/
+0000res/
 build/
 q/
 skel/

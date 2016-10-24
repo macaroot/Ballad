@@ -8,10 +8,12 @@
 /*
  * Variable declarations
  */
-// SDL2 window pointer
+// SDL2 pointers
 // Used by window.c
 // !! SDL2 pointers: sdl -prefix
 extern SDL_Window* sdlWindow;
+extern SDL_Renderer* sdlRenderer;
+extern SDL_Texture* sdlTexture;
 
 /*
  * Function declarations

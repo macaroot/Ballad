@@ -3,8 +3,8 @@
 
 ### Description
 Ballad is a personal project to increase my understanding in C
-and create a game at the same time. SDL2 and OpenGL are the basic
-libraries used.
+and create a game at the same time. SDL2 is the only basic
+library used.
 
 ### Legal
 This code is open-source.

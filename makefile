@@ -15,10 +15,10 @@ OBJECTS = $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 # -Wall turns on most, but not all, compiler warnings
 CFLAGS = -g -Wall
 # includes and libs
-INC = -I/usr/include/SDL2/ -I/usr/include/GL/
+INC = -I/usr/include/SDL2/
 HEAD = -Iinclude
 LIB_LOOK = -L/usr/lib/ -L/usr/lib/mesa/
-LIB = -lSDL2 -lGL -lGLEW
+LIB = -lSDL2 -lSDL2_image
 
 # all: $(TARGET)
 

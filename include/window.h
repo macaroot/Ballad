@@ -20,6 +20,7 @@ extern const int SCREEN_HEIGHT;
 // Draw to the screen
 // Used by game.c
 extern void drawScreen();
+extern int loadMedia();
 
 #endif
 

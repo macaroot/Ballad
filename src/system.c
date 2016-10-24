@@ -4,11 +4,9 @@
  */
 // SDL2 includes
 #include <SDL.h>
-//#include <SDL_image.h>
+#include <SDL_image.h>
 //#include <SDL_ttf.h>
 //#include <SDL_mixer.h>
-// OpenGL includes
-#include <glew.h>
 // Standard C includes
 #include <stdio.h>
 // .h includes
@@ -20,8 +18,6 @@
  */
 // SDL2 surface pointer to NULL for error recognition
 SDL_Surface* sdlSurface = NULL;
-// OpenGL context handle to NULL for error recognition
-SDL_GLContext glContext = NULL;
 
 /*
  * Inner function initialization
@@ -60,37 +56,35 @@ int initWindow()
     return 1;
 }
 
-int initOpengl()
+int initRenderer()
 {
-    // Tie GL context to the window
-    glContext = SDL_GL_CreateContext( sdlWindow );
-    if( glContext == NULL )
+    sdlRenderer = SDL_CreateRenderer(
+            sdlWindow,
+            -1,
+            SDL_RENDERER_ACCELERATED );
+    if( sdlRenderer == NULL )
     {
-        printf("SDL_GL context could not be created! Error: %s\n",
+        printf("Renderer could not be created! Error: %s\n",
                 SDL_GetError() );
         return 0;
         systemQuit();
     }
-    else
-    {
-        // Initialize Glew
-        GLenum error = glewInit();
-        if( error != GLEW_OK )
-        {
-            printf("Glew could not be initialized! Error: %s\n",
-                    SDL_GetError() );
-            return 0;
-            systemQuit();
-        }
-        // Setup window attributes
-        SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 5 );
-        SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 5 );
-        SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 5 );
-        SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
-        SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+    return 1;
+}
 
-        // Clear color to cyan
-        glClearColor( 0.0f, 1.0f, 1.0f, 1.0f );
+int initImage()
+{
+    // Initialize renderer color
+    SDL_SetRenderDrawColor( sdlRenderer, 0xFF, 0xFF, 0x00, 0xFF );
+
+    // Initialize PNG loading
+    int imgFlags = IMG_INIT_PNG;
+    if( !( IMG_Init( imgFlags ) & imgFlags ) )
+    {
+        printf( "SDL_image could not initialize! SDL_image Error: %s\n",
+            IMG_GetError() );
+        return 0;
+        systemQuit();
     }
     return 1;
 }
@@ -102,10 +96,14 @@ int initOpengl()
 // Used by window.c
 // !! SDL2 pointers: sdl -prefix
 SDL_Window* sdlWindow = NULL;
+SDL_Renderer* sdlRenderer = NULL;
+// Currently displayed texture
+SDL_Texture* sdlTexture = NULL;
 
 /*
  * Outer function definitions
  */
+
 // Initialize SDL2, it's subsystems and OpenGL
 // Used by game.c
 void systemInit()
@@ -114,7 +112,10 @@ void systemInit()
     {
         if( initWindow() )
         {
-            initOpengl();
+            if( initRenderer() )
+            {
+                initImage();
+            }
         }
     }
 }
@@ -123,11 +124,15 @@ void systemInit()
 // Used by game.c
 void systemQuit()
 {
-    // Delete OpenGL context
-    SDL_GL_DeleteContext( glContext );
+    // Free loaded image
+    SDL_DestroyTexture( sdlTexture );
+    sdlTexture = NULL;
 
-    // Destroy window
+    // Destroy renderer and window
+    SDL_DestroyRenderer( sdlRenderer );
     SDL_DestroyWindow( sdlWindow );
+    sdlRenderer = NULL;
+    sdlWindow = NULL;
 
     // Quit SDL2 and it's subsystems
     SDL_Quit();
