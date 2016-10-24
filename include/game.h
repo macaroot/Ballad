@@ -8,7 +8,14 @@
 /*
  * Variable declarations
  */
-
+// Track game state
+// Used by input.c, loop.c
+typedef enum eGameState
+{
+    QUIT,
+    PLAY
+} eGameState;
+extern eGameState eCurrentState;
 
 /*
  * Function declarations

@@ -18,10 +18,10 @@ Major variables and function are defined separate, with variables
 at the top of the file.
 
 **.h**
-Headers are used only for declaring extern types. Each variable
-and function includes a comment about its use and what source uses
-them. Every header is accompanied by a source which defines its
-declarations.
+Headers are used only for declaring extern variables and types.
+Each variable and function includes a comment about its use and
+what source uses them. Every header is accompanied by a source
+which defines its declarations.
 
 **.c**
 Sources are named after the header that most influences them.

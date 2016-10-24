@@ -37,7 +37,4 @@ void drawScreen()
 
     // Swap GL buffers
     SDL_GL_SwapWindow( sdlWindow );
-
-    // Wait 5 seconds
-    SDL_Delay( 5000 );
 }

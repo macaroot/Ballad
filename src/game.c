@@ -15,10 +15,14 @@
 #include "game.h"
 #include "system.h"
 #include "window.h"
+#include "loop.h"
 
 /*
  * Outer variable definitions
  */
+// Track game state
+// Used by input.c, loop.c
+eGameState eCurrentState = PLAY;
 
 /*
  * Outer function definitions
@@ -28,6 +32,6 @@
 void runGame()
 {
     systemInit();
-    drawScreen();
+    theLoop();
     systemQuit();
 }
