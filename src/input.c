@@ -23,26 +23,26 @@
  */
 void inputManager()
 {
-    // SDL2 event handle
-    SDL_Event sdlE;
+	// SDL2 event handle
+	SDL_Event sdlE;
 
-    // Event queue
-    while( SDL_PollEvent( &sdlE ) != 0 )
-    {
-        if( sdlE.type == SDL_QUIT )
-        {
-            eCurrentState = QUIT;
-        }
-        else if( sdlE.type == SDL_KEYDOWN )
-        {
-            switch( sdlE.key.keysym.sym )
-            {
-                case SDLK_ESCAPE: ;
-                    eCurrentState = QUIT;
-                    break;
-                default:
-                    return;
-            }
-        }
-    }
+	// Event queue
+	while( SDL_PollEvent( &sdlE ) != 0 )
+	{
+		if( sdlE.type == SDL_QUIT )
+		{
+			eCurrentState = QUIT;
+		}
+		else if( sdlE.type == SDL_KEYDOWN )
+		{
+			switch( sdlE.key.keysym.sym )
+			{
+				case SDLK_ESCAPE: ;
+					eCurrentState = QUIT;
+					break;
+				default:
+					return;
+			}
+		}
+	}
 }

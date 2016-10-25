@@ -14,7 +14,7 @@
 
 int main( int argc, char* argv[] )
 {
-    runGame();
+	runGame();
 
-    return 0;
+	return 0;
 }

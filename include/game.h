@@ -12,8 +12,8 @@
 // Used by input.c, loop.c
 typedef enum eGameState
 {
-    QUIT,
-    PLAY
+	QUIT,
+	PLAY
 } eGameState;
 extern eGameState eCurrentState;
 

@@ -25,68 +25,68 @@ SDL_Surface* sdlSurface = NULL;
 
 int initVideo()
 {
-    // Initialize SDL2
-    if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
-    {
-        printf( "SDL could not be initialized! SDL_Error: %s\n",
-                SDL_GetError() );
-        return 0;
-        systemQuit();
-    }
-    return 1;
+	// Initialize SDL2
+	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+	{
+		printf( "SDL could not be initialized! SDL_Error: %s\n",
+				SDL_GetError() );
+		return 0;
+		systemQuit();
+	}
+	return 1;
 }
 
 int initWindow()
 {
-    // Create window
-    sdlWindow = SDL_CreateWindow(
-            "Ballad",
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
-            SCREEN_WIDTH,
-            SCREEN_HEIGHT,
-            SDL_WINDOW_OPENGL );
-    if( sdlWindow == NULL )
-    {
-        printf( "Window could not be created! SDL_Error: %s\n",
-                SDL_GetError() );
-        return 0;
-        systemQuit();
-    }
-    return 1;
+	// Create window
+	sdlWindow = SDL_CreateWindow(
+			"Ballad",
+			SDL_WINDOWPOS_UNDEFINED,
+			SDL_WINDOWPOS_UNDEFINED,
+			SCREEN_WIDTH,
+			SCREEN_HEIGHT,
+			SDL_WINDOW_OPENGL );
+	if( sdlWindow == NULL )
+	{
+		printf( "Window could not be created! SDL_Error: %s\n",
+				SDL_GetError() );
+		return 0;
+		systemQuit();
+	}
+	return 1;
 }
 
 int initRenderer()
 {
-    sdlRenderer = SDL_CreateRenderer(
-            sdlWindow,
-            -1,
-            SDL_RENDERER_ACCELERATED );
-    if( sdlRenderer == NULL )
-    {
-        printf("Renderer could not be created! Error: %s\n",
-                SDL_GetError() );
-        return 0;
-        systemQuit();
-    }
-    return 1;
+	sdlRenderer = SDL_CreateRenderer(
+			sdlWindow,
+			-1,
+			SDL_RENDERER_ACCELERATED );
+	if( sdlRenderer == NULL )
+	{
+		printf("Renderer could not be created! Error: %s\n",
+				SDL_GetError() );
+		return 0;
+		systemQuit();
+	}
+	return 1;
 }
 
 int initImage()
 {
-    // Initialize renderer color
-    SDL_SetRenderDrawColor( sdlRenderer, 0xFF, 0xFF, 0x00, 0xFF );
+	// Initialize renderer color
+	SDL_SetRenderDrawColor( sdlRenderer, 0xFF, 0xFF, 0x00, 0xFF );
 
-    // Initialize PNG loading
-    int imgFlags = IMG_INIT_PNG;
-    if( !( IMG_Init( imgFlags ) & imgFlags ) )
-    {
-        printf( "SDL_image could not initialize! SDL_image Error: %s\n",
-            IMG_GetError() );
-        return 0;
-        systemQuit();
-    }
-    return 1;
+	// Initialize PNG loading
+	int imgFlags = IMG_INIT_PNG;
+	if( !( IMG_Init( imgFlags ) & imgFlags ) )
+	{
+		printf( "SDL_image could not initialize! SDL_image Error: %s\n",
+			IMG_GetError() );
+		return 0;
+		systemQuit();
+	}
+	return 1;
 }
 
 /*
@@ -108,32 +108,32 @@ SDL_Texture* sdlTexture = NULL;
 // Used by game.c
 void systemInit()
 {
-    if( initVideo() )
-    {
-        if( initWindow() )
-        {
-            if( initRenderer() )
-            {
-                initImage();
-            }
-        }
-    }
+	if( initVideo() )
+	{
+		if( initWindow() )
+		{
+			if( initRenderer() )
+			{
+				initImage();
+			}
+		}
+	}
 }
 
 // Quit OpenGl, SDL2 and it's subsystems
 // Used by game.c
 void systemQuit()
 {
-    // Free loaded image
-    SDL_DestroyTexture( sdlTexture );
-    sdlTexture = NULL;
+	// Free loaded image
+	SDL_DestroyTexture( sdlTexture );
+	sdlTexture = NULL;
 
-    // Destroy renderer and window
-    SDL_DestroyRenderer( sdlRenderer );
-    SDL_DestroyWindow( sdlWindow );
-    sdlRenderer = NULL;
-    sdlWindow = NULL;
+	// Destroy renderer and window
+	SDL_DestroyRenderer( sdlRenderer );
+	SDL_DestroyWindow( sdlWindow );
+	sdlRenderer = NULL;
+	sdlWindow = NULL;
 
-    // Quit SDL2 and it's subsystems
-    SDL_Quit();
+	// Quit SDL2 and it's subsystems
+	SDL_Quit();
 }

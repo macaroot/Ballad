@@ -29,7 +29,7 @@ eGameState eCurrentState = PLAY;
 // Used by main.c
 void runGame()
 {
-    systemInit();
-    theLoop();
-    systemQuit();
+	systemInit();
+	theLoop();
+	systemQuit();
 }

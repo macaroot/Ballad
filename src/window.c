@@ -33,57 +33,57 @@ const int SCREEN_HEIGHT = 720;
 // Get the image for texture
 SDL_Texture* sdlLoadTexture( char* path )
 {
-    // The final texture
-    SDL_Texture* newTexture = NULL;
+	// The final texture
+	SDL_Texture* newTexture = NULL;
 
-    // Load image at specified path
-    SDL_Surface* loadedSurface = IMG_Load( path );
-    if( loadedSurface == NULL )
-    {
-        printf( "Unable to load image %s! SDL Error: %s\n",
-                path, SDL_GetError() );
-    }
-    else
-    {
-        // Convert texture from surface to pixels
-        newTexture = SDL_CreateTextureFromSurface(
-                sdlRenderer,
-                loadedSurface );
-        if( newTexture == NULL )
-        {
-            printf( "Unable to create texture from %s! SDL Error: %s\n",
-                    path, SDL_GetError() );
-        }
+	// Load image at specified path
+	SDL_Surface* loadedSurface = IMG_Load( path );
+	if( loadedSurface == NULL )
+	{
+		printf( "Unable to load image %s! SDL Error: %s\n",
+				path, SDL_GetError() );
+	}
+	else
+	{
+		// Convert texture from surface to pixels
+		newTexture = SDL_CreateTextureFromSurface(
+				sdlRenderer,
+				loadedSurface );
+		if( newTexture == NULL )
+		{
+			printf( "Unable to create texture from %s! SDL Error: %s\n",
+					path, SDL_GetError() );
+		}
 
-        // Get rid of old loaded surface
-        SDL_FreeSurface( loadedSurface );
-    }
+		// Get rid of old loaded surface
+		SDL_FreeSurface( loadedSurface );
+	}
 
-    return newTexture;
+	return newTexture;
 }
 
 // Load media
 int loadMedia()
 {
-    sdlTexture = sdlLoadTexture( "include/visual/blaBox.png" );
-    if( sdlTexture == NULL )
-    {
-        printf( "Failed to load texture image!\n" );
-        return 0;
-        systemQuit();
-    }
-    return 1;
+	sdlTexture = sdlLoadTexture( "include/visual/blaBox.png" );
+	if( sdlTexture == NULL )
+	{
+		printf( "Failed to load texture image!\n" );
+		return 0;
+		systemQuit();
+	}
+	return 1;
 };
 
 // Draw to the screen
 // Used by game.c
 void drawScreen()
 {
-    SDL_RenderClear( sdlRenderer );
+	SDL_RenderClear( sdlRenderer );
 
-    // Render texture to screen
-    SDL_RenderCopy( sdlRenderer, sdlTexture, NULL, NULL );
+	// Render texture to screen
+	SDL_RenderCopy( sdlRenderer, sdlTexture, NULL, NULL );
 
-    // Update the surface
-    SDL_RenderPresent( sdlRenderer );
+	// Update the surface
+	SDL_RenderPresent( sdlRenderer );
 }

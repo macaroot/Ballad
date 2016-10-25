@@ -27,13 +27,13 @@
 // Used by game.c
 void theLoop()
 {
-    // Load media
-    loadMedia();
+	// Load media
+	loadMedia();
 
-    // Clear screen
-    while( eCurrentState != QUIT )
-    {
-        inputManager();
-        drawScreen();
-    }
+	// Clear screen
+	while( eCurrentState != QUIT )
+	{
+		inputManager();
+		drawScreen();
+	}
 }
