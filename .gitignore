@@ -3,9 +3,13 @@ include/font/
 include/visual/
 0000res/
 build/
+doc/
 q/
 skel/
 bin/
+testbed/
+lib/
+cscope.out
 tags
 note
 .*.sw*
