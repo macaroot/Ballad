@@ -1,0 +1,328 @@
+/* This code is open-source.
+ * Images and music are copyrighted by Lasse Ilmonen / ilmoj (2016),
+ * and may not be used for commercial use without written permission.
+ * Fair Use applies, naturally.
+ */
+// SDL2 includes
+#include <SDL.h>
+// Standard C includes
+#include <stdio.h>
+// .h includes
+//#include ""
+
+/*
+ *	All declarations that are convenient to be universal
+ */
+
+// !! SDL2 pointers: sdl -prefix
+// SDL2 window pointer to NULL for error recognition
+SDL_Window* sdlWindow = NULL;
+SDL_Renderer* sdlRenderer = NULL;
+
+// !! Constants: all caps with underscores
+// Screen dimension constants
+const int SCREEN_WIDTH = 1080;
+const int SCREEN_HEIGHT = 720;
+// Size of rectangels used to draw everything, effectively the resolution
+const int PIXEL = 2;
+// Predefined palettes, all of the colors are from here.
+// Two dimensional array, [16][16] is the largest possible due to the nature of imagedata
+const int PALETTE[2][16] =
+{
+	{	0x002B36, 0x073642, 0x586E75, 0x657B83, 0x839496, 0x93A1A1, 0xEEE8D5, 0xFDF6E3,
+		0xB58900, 0xCB4B16, 0xDC322F, 0xD33682, 0x6C71C4, 0x268BD2, 0x2AA198, 0x859900 },
+	{	0x002B36, 0x073642, 0x586E75, 0x657B83, 0x839496, 0x93A1A1, 0xEEE8D5, 0xFDF6E3,
+		0xB58900, 0xCB4B16, 0xDC322F, 0xD33682, 0x6C71C4, 0x268BD2, 0x2AA198, 0x859900 }
+};
+
+// Track game state
+typedef enum eGameState
+{
+	QUIT,
+	PLAY
+} eGameState;
+// Set initial game state
+eGameState eCurrentState = PLAY;
+
+// Quit SDL2 and it's subsystems
+void vSystemQuit();
+
+/*
+ *	All in-game functions
+ */
+
+// Manage all the input
+void vInputManager()
+{
+	// SDL2 event handle
+	SDL_Event sdlE;
+
+	// Event queue
+	while( SDL_PollEvent( &sdlE ) != 0 )
+	{
+		if( sdlE.type == SDL_QUIT )
+		{
+			eCurrentState = QUIT;
+		}
+		else if( sdlE.type == SDL_KEYDOWN )
+		{
+			switch( sdlE.key.keysym.sym )
+			{
+				case SDLK_ESCAPE: ;
+					eCurrentState = QUIT;
+					break;
+				default:
+					return;
+			}
+		}
+	}
+}
+
+// 4 bytes to define a single 4x4 grid. Example:
+// F0D85A0F =
+// 1111 0000 | 1101 1000 | 0101 1010 | 0000 1111
+// alp. pal.   bg   fg     4th- 3rd-   2nd- 1st line, binary counts from right
+// Alpha byte is a flagbyte, which is converted to 4 levels of alpha for both fg and bg
+// Corresponding alpha levels	  Alp=0x00  Alp=0x55  Alp=0xAA  Alp=0xFF
+// Foreground alpha only		= 0 (0000), 1 (0001), 2 (0010), 3 (0011)
+// Background alpha only		= 0 (0000), 4 (0100), 8 (1000), C (1100)
+// Both same alpha				= 0 (0000), 5 (0101), A (1010), F (1111)
+//
+// First item of image array has some image data. Example:
+// 00020002 =
+// 0000 0000 | 0000 0002 | 0000 0000 | 0000 0002
+// Amount of grids in y-   Amount of grids in x direcion. Currently really empty
+int sprite[] = { 0x00040003,	0xD0D8112C, 0xF0D8000F, 0x30D88843,
+								0xD0D81111, 0xF0D86996, 0x30D88888,
+								0xD0D81111, 0xF0D86996, 0x30D88888,
+								0xD0D8C211, 0xF0D8F000, 0x30D83488 };
+
+// Draw to the screen
+void vDrawScreen()
+{
+	// Hardcode this further if there is never any reason to change the color
+	// of screen
+	int screenColor = PALETTE[0][6];
+	// Set screen color
+	SDL_SetRenderDrawColor( sdlRenderer,	( screenColor >> 16 ) & 0xFF,
+											( screenColor >> 8 ) & 0xFF,
+											screenColor & 0xFF, 0xFF );
+	// Clear screen
+	SDL_RenderClear( sdlRenderer );
+
+	// Draw everything else over the screen
+	// TODO Make logic for start points of drawing grids
+	// TODO TODO Comment, clean up and dissect/universalize this horrible mess TODO TODO
+	int place[] = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
+	int xRefPos = place[0];
+	int yRefPos = place[1];
+	// Section where imagedata is inserted and everything is drawn grid-by-grid
+	// Currently main for loop assumes imagedata is an int array
+	// Rip data of single int
+	int data = sprite[0];
+	int gridNab = 0;
+		
+	int xSizeLimit = data & 0xFFFF;
+	int xSizeCount = 0;
+	int ySizeLimit = ( data >> 16 ) & 0xFFFF;
+	int ySizeCount = 0;
+	int i;
+	for( i = 0; i < ( sizeof( sprite ) / sizeof( *sprite ) ); i++ )
+	{
+		if( xSizeCount == xSizeLimit )
+		{
+			xSizeCount = 0;
+			ySizeCount++;
+		}
+		if( ySizeCount < ySizeLimit )
+		{
+			// Go through grid from left upper corner to bottom right
+			int grid;
+			gridNab++;
+			data = sprite[gridNab];
+			int xDev = 0;
+			int yDev = 0;
+			for( grid = 0; grid < 16; grid++ )
+			{
+				int color;
+				int alpha;
+				// First draw upper line from left to right, then go to next line
+				if( xDev > 3 )
+				{
+					xDev = 0;
+					yDev++;
+				}
+				// Use different halfbyte depending on whether current pixel is fg or bg
+				if( data & ( 1 << grid ) )
+				{
+					// First halfbyte of data's 4th byte to enter palette and FIRST halfbyte
+					// of data's 3rd byte to get index of foreground color
+					// Places 3 byte color in col
+					color = PALETTE	[ ( data >> 24 ) & 0x0F ]
+									[ ( data >> 16 ) & 0x0F ];
+					alpha = ( ( ( data >> 0x1C ) & 0x3 ) | ( ( ( data >> 0x1C ) & 0x3 ) << 0x2 ) ) | \
+							( ( ( ( data >> 0x1C ) & 0x3 ) | ( ( ( data >> 0x1C ) & 0x3 ) << 0x2 ) ) << 0x4 );
+				}
+				else
+				{
+					// First halfbyte of data's 4th byte to enter palette and SECOND halfbyte
+					// of data's 3rd byte to get index of background color
+					// Places 3 byte color in col
+					color = PALETTE	[ ( data >> 24 ) & 0x0F ]
+									[ ( data >> 20 ) & 0x0F ];
+					alpha = ( ( ( data >> 0x1E ) & 0x3 ) | ( ( ( data >> 0x1E ) & 0x3 ) << 0x2 ) ) | \
+							( ( ( ( data >> 0x1E ) & 0x3 ) | ( ( ( data >> 0x1E ) & 0x3 ) << 0x2 ) ) << 0x4 );
+				}
+				// Define position and size of pixel
+				SDL_Rect pixel = {	xRefPos + ( xSizeCount * 4 * PIXEL ) + ( xDev * PIXEL ),
+									yRefPos + ( ySizeCount * 4 * PIXEL ) + ( yDev * PIXEL ),
+									PIXEL,
+									PIXEL };
+				// Get 3rd, 2nd & 1st bytes of color for r, g & b
+				SDL_SetRenderDrawColor( sdlRenderer,	( color >> 16 ) & 0xFF,
+														( color >> 8 ) & 0xFF,
+														color & 0xFF,
+														alpha );
+				// Draw single pixel
+				SDL_RenderFillRect( sdlRenderer, &pixel );
+				// Inc to next line of grid
+				xDev++;
+			}
+			xSizeCount++;
+		}
+	}
+
+	// Update the surface
+	SDL_RenderPresent( sdlRenderer );
+}
+
+// Everything in the game itself happens here
+void vTheLoop()
+{
+	while( eCurrentState != QUIT )
+	{
+		vInputManager();
+		vDrawScreen();
+	}
+}
+
+
+/*
+ *	Initialize SDL2 and it's subsystems
+ */
+
+// Initialize SDL2
+int iInitVideo()
+{
+	if( SDL_Init( SDL_INIT_VIDEO ) != 0 )
+	{
+		printf( "SDL could not be initialized! SDL_Error: %s\n",
+				SDL_GetError() );
+		return 0;
+		vSystemQuit();
+	}
+	return 1;
+}
+// Create window
+int iInitWindow()
+{
+	sdlWindow = SDL_CreateWindow(
+			"Ballad",
+			SDL_WINDOWPOS_UNDEFINED,
+			SDL_WINDOWPOS_UNDEFINED,
+			SCREEN_WIDTH,
+			SCREEN_HEIGHT,
+			SDL_WINDOW_SHOWN /* | SDL_WINDOW_RESIZABLE  | SDL_WINDOW_BORDERLESS */ );
+	if( sdlWindow == NULL )
+	{
+		printf( "Window could not be created! SDL_Error: %s\n",
+				SDL_GetError() );
+		return 0;
+		vSystemQuit();
+	}
+	return 1;
+}
+// Create context for Renderer
+int iInitRenderer()
+{
+	sdlRenderer = SDL_CreateRenderer(
+			sdlWindow,
+			-1,
+			SDL_RENDERER_ACCELERATED );
+	if( sdlRenderer == NULL )
+	{
+		printf("Renderer could not be created! SDL_Error: %s\n",
+				SDL_GetError() );
+		return 0;
+		vSystemQuit();
+	}
+	return 1;
+}
+// Enables Alpha blending
+int iInitBlend()
+{
+	if( SDL_SetRenderDrawBlendMode( sdlRenderer, SDL_BLENDMODE_BLEND ) != 0 )
+	{
+		printf( "Blend mode could not be enabled! SDL_Error: %s\n",
+				SDL_GetError() );
+		return 0;
+		vSystemQuit();
+	}
+	return 1;
+}
+
+// Nested initialization
+void vSystemInit()
+{
+	if( iInitVideo() )
+	{
+		if( iInitWindow() )
+		{
+			if( iInitRenderer() )
+			{
+				iInitBlend();
+			}
+		}
+	}
+}
+
+/*
+ *	Quit SDL2 and it's subsystems
+ */
+
+void vSystemQuit()
+{
+	// Destroy renderer and window
+	SDL_DestroyRenderer( sdlRenderer );
+	SDL_DestroyWindow( sdlWindow );
+	sdlRenderer = NULL;
+	sdlWindow = NULL;
+
+	// Quit SDL2 and it's subsystems
+	SDL_Quit();
+}
+
+/*
+ *	Everything in program divided in three: initialization, loop and exiting
+ */
+
+void vRunGame()
+{
+	vSystemInit();
+	vTheLoop();
+	vSystemQuit();
+}
+
+/*
+ *	Main
+ */
+
+int main( int argc, char* argv[] )
+{
+	vRunGame();
+
+	return 0;
+}
+//printf( "xRef:%d	yRef:%d",xRefPos,yRefPos );
+//printf( "%d	%d	%d	%d	%d\n",  xSizeCount, xSizeLimit, ySizeCount, ySizeLimit, i );
+//printf( "draw x:%d	y:%d	xDev:%d	yDev:%d\n", xRefPos + ( xSizeCount * 4 * PIXEL ) + ( xDev * PIXEL ),yRefPos + ( ySizeCount * 4 * PIXEL ) + ( yDev * PIXEL ), xDev, yDev  );

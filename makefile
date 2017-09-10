@@ -13,12 +13,13 @@ OBJECTS = $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 # compiler flags
 # -g adds debugging information to the executable file
 # -Wall turns on most, but not all, compiler warnings
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -ansi -pedantic
 # includes and libs
 INC = -I/usr/include/SDL2/
 HEAD = -Iinclude
-LIB_LOOK = -L/usr/lib/ -L/usr/lib/mesa/
-LIB = -lSDL2 -lSDL2_image
+LIB_LOOK = -L/usr/lib/
+# -fPIC fixes truncation problem that appeared for some reason
+LIB = -lSDL2
 
 # all: $(TARGET)
 
