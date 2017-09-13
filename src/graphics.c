@@ -87,13 +87,16 @@ int* ipGetImageData( int** ptrToStream, int* image )
 	return infoArray;
 }/*}}}*/
 
-/* Alpha reduction modus */
+/* Modifying whole image with modus */
 void applyModus( int* tetra, int currentImageIndex, int flags, int flux )
 /*{{{*//*{{{*/
-/* - Flux bits correspond to alpha. If bit is off it's switched off from
- *   tetra's alpha.
- * - The first ANDing line makes it so that the flux doesn't just replace alpha
- *   portion, instead it never makes things more opaque than the original.
+/* - Modus are modifications of the image. They consist of two ints, flag and
+ *   flux, flag activates modus and flux modifies them. Constructions:
+ *   &0x1 alpha flag
+ *   &0xF alpha flux
+ * - (Conforming) alpha -modus. The first ANDing line makes it so that the flux
+ *   doesn't just replace tetra's alpha portion, instead it never makes things
+ *   more opaque than the original. This preserves outlines made with alpha.
  *//*}}}*/
 {
 	if( flags & 0x1 )
