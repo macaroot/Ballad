@@ -87,8 +87,24 @@ int* ipGetImageData( int** ptrToStream, int* image )
 	return infoArray;
 }/*}}}*/
 
+/* Alpha reduction modus */
+void applyModus( int* tetra, int currentImageIndex, int flags, int flux )
+/*{{{*//*{{{*/
+/* - Flux bits correspond to alpha. If bit is off it's switched off from
+ *   tetra's alpha.
+ * - The first ANDing line makes it so that the flux doesn't just replace alpha
+ *   portion, instead it never makes things more opaque than the original.
+ *//*}}}*/
+{
+	if( flags & 0x1 )
+	{
+		flux = *tetra & ( flux << 0x1C );
+		*tetra = *tetra ^ ( ( *tetra ^ flux ) & 0xF0000000 );
+	}
+}/*}}}*/
+
 /* Draw a single tetra. The more independent this is, the better */
-void drawTetra( int* tetraStream, int drawOrigin[], int cntrTetra,
+void drawTetra( int tetraData, int drawOrigin[], int cntrTetra,
                 int cntrImageWidth, int cntrImageHeight )
 /*{{{*//*{{{*//*
  * - Go through tetra from left upper corner to bottom right, drawing each
@@ -124,27 +140,27 @@ void drawTetra( int* tetraStream, int drawOrigin[], int cntrTetra,
 			cntrTetpixColumn = 0;
 			cntrTetpixRow++;
 		}
-		if( *( tetraStream + cntrTetra ) & ( 1 << cntrTetpix ) )
+		if( tetraData & ( 1 << cntrTetpix ) )
 		{
 			color = PALETTE
-                        [ ( *( tetraStream + cntrTetra ) >> 0x18 ) & 0xF ]
-                        [ ( *( tetraStream + cntrTetra ) >> 0x10 ) & 0xF ];
+                        [ ( tetraData >> 0x18 ) & 0xF ]
+                        [ ( tetraData >> 0x10 ) & 0xF ];
 			alpha =
-      ( ( ( *( tetraStream + cntrTetra ) >> 0x1C ) & 0x3 ) |
-      ( ( ( *( tetraStream + cntrTetra ) >> 0x1C ) & 0x3 ) << 0x2 ) ) |
-      ( ( ( ( *( tetraStream + cntrTetra ) >> 0x1C ) & 0x3 ) |
-      ( ( ( *( tetraStream + cntrTetra ) >> 0x1C ) & 0x3 ) << 0x2 ) ) << 0x4 );
+                        ( ( ( tetraData >> 0x1C ) & 0x3 ) |
+                        ( ( ( tetraData >> 0x1C ) & 0x3 ) << 0x2 ) ) |
+                        ( ( ( ( tetraData >> 0x1C ) & 0x3 ) |
+                        ( ( ( tetraData >> 0x1C ) & 0x3 ) << 0x2 ) ) << 0x4 );
 		}
 		else
 		{
 			color = PALETTE
-                        [ ( *( tetraStream + cntrTetra ) >> 0x18 ) & 0xF ]
-                        [ ( *( tetraStream + cntrTetra ) >> 0x14 ) & 0xF ];
+                        [ ( tetraData >> 0x18 ) & 0xF ]
+                        [ ( tetraData >> 0x14 ) & 0xF ];
 			alpha =
-      ( ( ( *( tetraStream + cntrTetra ) >> 0x1E ) & 0x3 ) |
-      ( ( ( *( tetraStream + cntrTetra ) >> 0x1E ) & 0x3 ) << 0x2 ) ) |
-      ( ( ( ( *( tetraStream + cntrTetra ) >> 0x1E ) & 0x3 ) |
-      ( ( ( *( tetraStream + cntrTetra ) >> 0x1E ) & 0x3 ) << 0x2 ) ) << 0x4 );
+                        ( ( ( tetraData >> 0x1E ) & 0x3 ) |
+                        ( ( ( tetraData >> 0x1E ) & 0x3 ) << 0x2 ) ) |
+                        ( ( ( ( tetraData >> 0x1E ) & 0x3 ) |
+                        ( ( ( tetraData >> 0x1E ) & 0x3 ) << 0x2 ) ) << 0x4 );
 		}
 		SDL_SetRenderDrawColor( window_getRenderer(
                 window_getPointer() ),
@@ -169,6 +185,8 @@ void drawImage( int currentImageIndex )
  *   image array
  * - Go through all the tetras in an image
  * - Tetra counters, which also get inserted to drawTetra
+ * - Go through modus changes if flag isn't empty
+ * - Draw tetra only if alpha isn't 0
  * - Drawing finished once counter caps full tetra amount
  * - Go to new tetra row if width counter touches real width (from image info)
  * - If alls good, height getting capped should coincide with tetra amount for
@@ -178,6 +196,9 @@ void drawImage( int currentImageIndex )
 	int* drawOrigin;
 	int* tetraStream;
 	int* imageData;
+	int singleTetra;
+	int modusFlags;
+	int modusFlux;
 	int cntrTetra;
 	int cntrImageWidth;
 	int cntrImageHeight;
@@ -185,6 +206,10 @@ void drawImage( int currentImageIndex )
         currentImageIndex, &drawOrigin );
 	imageData = ipGetImageData( &tetraStream,
         spriteList_getGraphic( spriteList_getPointer(), currentImageIndex ) );
+	modusFlags = spriteList_getModusFlags( spriteList_getPointer(),
+        currentImageIndex );
+	modusFlux = spriteList_getModusFlux( spriteList_getPointer(),
+        currentImageIndex );
 	cntrTetra = 0;
 	cntrImageWidth = 0;
 	cntrImageHeight = 0;
@@ -197,8 +222,17 @@ void drawImage( int currentImageIndex )
 		}
 		if( cntrImageHeight < *( imageData + 2 ) )
 		{
-			drawTetra( tetraStream, drawOrigin, cntrTetra,
-                        cntrImageWidth, cntrImageHeight );
+			singleTetra = *( tetraStream + cntrTetra );
+			if( modusFlags )
+			{
+				applyModus( &singleTetra,
+                                currentImageIndex, modusFlags, modusFlux );
+			}
+			if( singleTetra & 0xF0000000 )
+			{
+				drawTetra( singleTetra, drawOrigin, cntrTetra,
+                                cntrImageWidth, cntrImageHeight );
+			}
 			cntrImageWidth++;
 		}
 	}

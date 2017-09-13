@@ -19,6 +19,8 @@
 struct sSpriteList
 /*{{{*/
 {
+	int modusFlux;
+	int modusFlags;
 	int position[2];
 	int* graphic;
 };
@@ -40,19 +42,24 @@ typedef struct sMouseEntity sMOUSE;
 /*{{{*/
 struct sMouseEntity
 {
+	int modusFlux;
+	int modusFlags;
 	int position[2];
 	int pressed;
 	int* graphic;
 };
 sMOUSE mouseMain;/*}}}*/
 
+typedef struct sSquareEntity sSQUARE;
 struct sSquareEntity
 /*{{{*/
 {
+	int modusFlux;
+	int modusFlags;
 	int position[2];
 	int* graphic;
 };
-struct sSquareEntity sSquare;/*}}}*/
+sSQUARE sSquare;/*}}}*/
 
 /*****************************************************************************
  * Getset definitions                                                        *
@@ -62,6 +69,22 @@ void* spriteList_getPointer( void )
 /*{{{*/
 {
 	return sSprite;
+}
+int spriteList_getModusFlags( sSPRITELIST* p, int index )
+{
+	return p[index].modusFlags;
+}
+void spriteList_setModusFlags( sSPRITELIST* p, int index, int newInt )
+{
+	p[index].modusFlags = newInt;
+}
+int spriteList_getModusFlux( sSPRITELIST* p, int index )
+{
+	return p[index].modusFlux;
+}
+void spriteList_setModusFlux( sSPRITELIST* p, int index, int newInt )
+{
+	p[index].modusFlux = newInt;
 }
 void spriteList_getPosition( sSPRITELIST* p, int index, int** fetcher )
 {
@@ -89,8 +112,20 @@ void spriteList_setGraphic( sSPRITELIST* p, int index, int* newArr )
 void generateMouse( sMOUSE* p )
 /*{{{*/
 {
+	p->modusFlags = 0;
+	p->modusFlux = 0;
 	p->graphic = imgCursor;
 	p->pressed = 0;
+	p->position[0] = 0;
+	p->position[1] = 0;
+}/*}}}*/
+
+void generateSquare( sSQUARE* p )
+/*{{{*/
+{
+	p->modusFlags = 0;
+	p->modusFlux = 0;
+	p->graphic = imgSquare;
 	p->position[0] = 0;
 	p->position[1] = 0;
 }/*}}}*/
@@ -136,7 +171,10 @@ void vInputManager( void )
 void vLogic( void )
 /*{{{*/
 {
-	sSquare.graphic = imgSquare;
+	mouseMain.modusFlags = 1;
+	mouseMain.modusFlux = 0x1;
+	spriteList_setModusFlags( sSprite, 0, mouseMain.modusFlags );
+	spriteList_setModusFlux( sSprite, 0, mouseMain.modusFlux );
 	spriteList_setPosition( sSprite, 0, mouseMain.position );
 	spriteList_setGraphic( sSprite, 0, mouseMain.graphic );
 	spriteList_setGraphic( sSprite, 1, sSquare.graphic );
@@ -152,6 +190,7 @@ void vSetupGame( void )
 {
 	gamestateMain = PLAY;
 	generateMouse( &mouseMain );
+	generateSquare( &sSquare );
 }/*}}}*/
 
 /* Everything in the game itself happens here */

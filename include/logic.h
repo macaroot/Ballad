@@ -13,6 +13,10 @@
 typedef struct sSpriteList sSPRITELIST;
 /*{{{*/
 void* spriteList_getPointer( void );
+int spriteList_getModusFlags( sSPRITELIST*, int );
+void spriteList_setModusFlags( sSPRITELIST*, int, int );
+int spriteList_getModusFlux( sSPRITELIST*, int );
+void spriteList_setModusFlux( sSPRITELIST*, int, int );
 void spriteList_getPosition( sSPRITELIST*, int, int** );
 void spriteList_setPosition( sSPRITELIST*, int, int* );
 int* spriteList_getGraphic( sSPRITELIST*, int );

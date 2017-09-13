@@ -33,13 +33,15 @@
  * 0000 0000 | 0000 0002 | 0000 0000 | 0000 0002
  * Amount of grids in y-   Amount of grids in x direcion. Currently really empty
  *//*}}}*/
-int imgCursor[] = {
+int imgCursor[] =
+{
 	0x00030003,
 	0xF08E111F, 0x308EF731, 0x008E0000,
 	0x308E8CEF, 0xF08EA5A5, 0x308E3100,
 	0x008E0000, 0x308E008C, 0x308E0033
 };
-int imgSquare[] = {
+int imgSquare[] =
+{
 	0x00010001,
 	0xF0A5A5A5
 };
