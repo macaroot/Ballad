@@ -91,7 +91,8 @@ int* ipGetImageData( int** ptrToStream, int* image )
 void applyModus( int* tetra, int currentImageIndex, int flags, int flux )
 /*{{{*//*{{{*/
 /* - Modus are modifications of the image. They consist of two ints, flag and
- *   flux, flag activates modus and flux modifies them. Constructions:
+ *   flux, flag activates different modus and flux modifies them. There will be
+ *   overlap between modus' fluxes. Constructions:
  *   &0x1 alpha flag
  *   &0xF alpha flux
  * - (Conforming) alpha -modus. The first ANDing line makes it so that the flux
