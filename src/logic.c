@@ -172,7 +172,7 @@ void vLogic( void )
 /*{{{*/
 {
 	mouseMain.modusFlags = 1;
-	mouseMain.modusFlux = 0x1;
+	mouseMain.modusFlux = 0x7;
 	spriteList_setModusFlags( sSprite, 0, mouseMain.modusFlags );
 	spriteList_setModusFlux( sSprite, 0, mouseMain.modusFlux );
 	spriteList_setPosition( sSprite, 0, mouseMain.position );
@@ -189,6 +189,7 @@ void vSetupGame( void )
 /*{{{*/
 {
 	gamestateMain = PLAY;
+	vReadFiles();
 	generateMouse( &mouseMain );
 	generateSquare( &sSquare );
 }/*}}}*/

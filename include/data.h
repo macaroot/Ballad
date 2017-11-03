@@ -14,6 +14,7 @@ extern int imgCursor[10];
 extern int imgSquare[2];
 /* Screen color info: alpha, palette index, color index */
 extern int screenRegular[1];
+void vReadFiles( void );
 
 /*****************************************************************************
  * Function declarations                                                     *

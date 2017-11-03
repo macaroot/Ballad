@@ -22,7 +22,7 @@
  * Left side of row is right side of that binary presentation.
  * Alpha byte is a flagbyte, which is converted to 4 levels of alpha for
  * both fg and bg
- * Corresponding alpha levels    Alp=0x00  Alp=0x55  Alp=0xAA  Alp=0xFF
+ * Corresponding alpha levels    Alp=0x00  Alp=0x55  Alp=0xaa  Alp=0xff
  * Foreground alpha only       = 0 (0000), 1 (0001), 2 (0010), 3 (0011)
  * Background alpha only       = 0 (0000), 4 (0100), 8 (1000), C (1100)
  * Both same alpha             = 0 (0000), 5 (0101), A (1010), F (1111)
@@ -33,17 +33,21 @@
  * 0000 0000 | 0000 0002 | 0000 0000 | 0000 0002
  * Amount of grids in y-   Amount of grids in x direcion. Currently really empty
  *//*}}}*/
-int imgCursor[] =
-{
-	0x00030003,
-	0xF08E111F, 0x308EF731, 0x008E0000,
-	0x308E8CEF, 0xF08EA5A5, 0x308E3100,
-	0x008E0000, 0x308E008C, 0x308E0033
-};
-int imgSquare[] =
-{
-	0x00010001,
-	0xF0A5A5A5
-};
+int imgCursor[10];
+int imgSquare[2];
 /* Screen color info: alpha, palette index, color index */
-int screenRegular[] = { 0xF07 };
+int screenRegular[1];
+
+void vReadFiles()
+{
+	FILE* filePointer;
+	filePointer = fopen( "../include/visual/cursor.tetimg", "rb" );
+	fread( imgCursor, sizeof( imgCursor ), 1, filePointer );
+	fclose( filePointer );
+	filePointer = fopen( "../include/visual/square.tetimg", "rb" );
+	fread( imgSquare, sizeof( imgSquare ), 1, filePointer );
+	fclose( filePointer );
+	filePointer = fopen( "../include/visual/regular.tetscrn", "rb" );
+	fread( screenRegular, sizeof( screenRegular ), 1, filePointer );
+	fclose( filePointer );
+}

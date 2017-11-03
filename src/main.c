@@ -260,8 +260,8 @@ int main( int argc, char* argv[] )
  * ); printf( "draw x:%d	y:%d	xDev:%d	yDev:%d\n", xRefPos + (
  * xSizecntr * 4 * PIXEL ) + ( xDev * PIXEL ),yRefPos + ( ySizecntr * 4 * PIXEL
  * ) + ( yDev * PIXEL ), xDev, yDev  ); printf("s0:%04x	s1:%04x
- * s2:%04x\n",(*(screenColor)&0xFF),((*(screenColor+1)>>8)&0xFF),
- * ((*(screenColor +2)>>16)&0xFF)); printf("0:%04x	1:%04x
+ * s2:%04x\n",(*(screenColor)&0xff),((*(screenColor+1)>>8)&0xff),
+ * ((*(screenColor +2)>>16)&0xff)); printf("0:%04x	1:%04x
  * 2:%04x\n",rgbaArray[0],rgbaArray[1], rgbaArray[2]); printf( "int: %ld
  * uint: %ld\n", sizeof( int ), sizeof( unsigned ) );
  *//*}}}*/

@@ -30,15 +30,15 @@ const int PALETTE[2][16] =
  *//*}}}*/
 {
 	{
-		0x002B36, 0x073642, 0x586E75, 0x657B83,
-		0x839496, 0x93A1A1, 0xEEE8D5, 0xFDF6E3,
-		0xB58900, 0xCB4B16, 0xDC322F, 0xD33682,
-		0x6C71C4, 0x268BD2, 0x2AA198, 0x859900
+		0x002b36, 0x073642, 0x586e75, 0x657b83,
+		0x839496, 0x93a1a1, 0xeee8d5, 0xfdf6e3,
+		0xb58900, 0xcb4b16, 0xdc322f, 0xd33682,
+		0x6c71c4, 0x268bd2, 0x2aa198, 0x859900
 	},
-	{	0x002B36, 0x073642, 0x586E75, 0x657B83,
-		0x839496, 0x93A1A1, 0xEEE8D5, 0xFDF6E3,
-		0xB58900, 0xCB4B16, 0xDC322F, 0xD33682,
-		0x6C71C4, 0x268BD2, 0x2AA198, 0x859900
+	{	0x002b36, 0x073642, 0x586e75, 0x657b83,
+		0x839496, 0x93a1a1, 0xeee8d5, 0xfdf6e3,
+		0xb58900, 0xcb4b16, 0xdc322f, 0xd33682,
+		0x6c71c4, 0x268bd2, 0x2aa198, 0x859900
 	}
 };/*}}}*/
 
@@ -60,8 +60,8 @@ int* ipGetScreenColor( void )
  *//*}}}*/
 {
 	static int rgbaArray[4];
-	rgbaArray[1] = ( screenRegular[0] >> 0x4 ) & 0xF;
-	rgbaArray[0] = PALETTE[ rgbaArray[1] ][ ( screenRegular[0] & 0xF ) ];
+	rgbaArray[1] = ( screenRegular[0] >> 0x4 ) & 0xf;
+	rgbaArray[0] = PALETTE[ rgbaArray[1] ][ ( screenRegular[0] & 0xf ) ];
 	rgbaArray[2] = ( ( ( screenRegular[0] >> 0x8 ) & 0x3 ) |
         ( ( ( screenRegular[0] >> 0x8 ) & 0x3 ) << 0x2 ) ) |
         ( ( ( ( screenRegular[0] >> 0x8 ) & 0x3 ) |
@@ -81,20 +81,20 @@ int* ipGetImageData( int** ptrToStream, int* image )
 {
 	static int infoArray[3];
 	*ptrToStream = &image[1];
-	infoArray[1] = image[0] & 0xFFFF;
-	infoArray[2] = ( image[0] >> 0x10 ) & 0xFFFF;
+	infoArray[1] = image[0] & 0xffff;
+	infoArray[2] = ( image[0] >> 0x10 ) & 0xffff;
 	infoArray[0] = infoArray[1] * infoArray[2];
 	return infoArray;
 }/*}}}*/
 
 /* Modifying whole image with modus */
-void applyModus( int* tetra, int currentImageIndex, int flags, int flux )
+void applyModus( int* tetra, int flags, int flux )
 /*{{{*//*{{{*/
 /* - Modus are modifications of the image. They consist of two ints, flag and
  *   flux, flag activates different modus and flux modifies them. There will be
  *   overlap between modus' fluxes. Constructions:
  *   &0x1 alpha flag
- *   &0xF alpha flux
+ *   &0xf alpha flux
  * - (Conforming) alpha -modus. The first ANDing line makes it so that the flux
  *   doesn't just replace tetra's alpha portion, instead it never makes things
  *   more opaque than the original. This preserves outlines made with alpha.
@@ -102,8 +102,8 @@ void applyModus( int* tetra, int currentImageIndex, int flags, int flux )
 {
 	if( flags & 0x1 )
 	{
-		flux = *tetra & ( flux << 0x1C );
-		*tetra = *tetra ^ ( ( *tetra ^ flux ) & 0xF0000000 );
+		flux = *tetra & ( flux << 0x1c );
+		*tetra = *tetra ^ ( ( *tetra ^ flux ) & 0xf0000000 );
 	}
 }/*}}}*/
 
@@ -127,7 +127,7 @@ void drawTetra( int tetraData, int drawOrigin[], int cntrTetra,
  * - Going to explain this alpha monstrosity here: Two bits (different two if
  *   fg or bg) are duplicated twice with bitfiddling, so that no check needs
  *   to be made to determine alpha, you can just CRUNCH it and correct numbers
- *   for alpha levels are always achieved. 0x00, 0x55, 0xAA or 0xFF.
+ *   for alpha levels are always achieved. 0x00, 0x55, 0xaa or 0xff.
  *   Example: 0110 10'01' -> 0000 0001 -> 0000 0101 -> 0101 0101.
  *   If we call 0000 0001 a, then (a | (a<<2)) | ((a | (a<<2))<<4)
  *   Maybe at some point I'll find this is really slow, but for now it's fun.
@@ -147,30 +147,30 @@ void drawTetra( int tetraData, int drawOrigin[], int cntrTetra,
 		if( tetraData & ( 1 << cntrTetpix ) )
 		{
 			color = PALETTE
-                        [ ( tetraData >> 0x18 ) & 0xF ]
-                        [ ( tetraData >> 0x10 ) & 0xF ];
+                        [ ( tetraData >> 0x18 ) & 0xf ]
+                        [ ( tetraData >> 0x10 ) & 0xf ];
 			alpha =
-                        ( ( ( tetraData >> 0x1C ) & 0x3 ) |
-                        ( ( ( tetraData >> 0x1C ) & 0x3 ) << 0x2 ) ) |
-                        ( ( ( ( tetraData >> 0x1C ) & 0x3 ) |
-                        ( ( ( tetraData >> 0x1C ) & 0x3 ) << 0x2 ) ) << 0x4 );
+                        ( ( ( tetraData >> 0x1c ) & 0x3 ) |
+                        ( ( ( tetraData >> 0x1c ) & 0x3 ) << 0x2 ) ) |
+                        ( ( ( ( tetraData >> 0x1c ) & 0x3 ) |
+                        ( ( ( tetraData >> 0x1c ) & 0x3 ) << 0x2 ) ) << 0x4 );
 		}
 		else
 		{
 			color = PALETTE
-                        [ ( tetraData >> 0x18 ) & 0xF ]
-                        [ ( tetraData >> 0x14 ) & 0xF ];
+                        [ ( tetraData >> 0x18 ) & 0xf ]
+                        [ ( tetraData >> 0x14 ) & 0xf ];
 			alpha =
-                        ( ( ( tetraData >> 0x1E ) & 0x3 ) |
-                        ( ( ( tetraData >> 0x1E ) & 0x3 ) << 0x2 ) ) |
-                        ( ( ( ( tetraData >> 0x1E ) & 0x3 ) |
-                        ( ( ( tetraData >> 0x1E ) & 0x3 ) << 0x2 ) ) << 0x4 );
+                        ( ( ( tetraData >> 0x1e ) & 0x3 ) |
+                        ( ( ( tetraData >> 0x1e ) & 0x3 ) << 0x2 ) ) |
+                        ( ( ( ( tetraData >> 0x1e ) & 0x3 ) |
+                        ( ( ( tetraData >> 0x1e ) & 0x3 ) << 0x2 ) ) << 0x4 );
 		}
 		SDL_SetRenderDrawColor( window_getRenderer(
                 window_getPointer() ),
-                ( color >> 0x10 ) & 0xFF,
-                ( color >> 0x8 ) & 0xFF,
-                color & 0xFF,
+                ( color >> 0x10 ) & 0xff,
+                ( color >> 0x8 ) & 0xff,
+                color & 0xff,
                 alpha );
 		SDL_RenderDrawPoint( window_getRenderer( window_getPointer() ),
                 drawOrigin[0] + ( cntrImageWidth * 4 ) + cntrTetpixColumn,
@@ -229,10 +229,10 @@ void drawImage( int currentImageIndex )
 			singleTetra = *( tetraStream + cntrTetra );
 			if( modusFlags )
 			{
-				applyModus( &singleTetra,
-                                currentImageIndex, modusFlags, modusFlux );
+				applyModus( &singleTetra, modusFlags,
+                                modusFlux );
 			}
-			if( singleTetra & 0xF0000000 )
+			if( singleTetra & 0xf0000000 )
 			{
 				drawTetra( singleTetra, drawOrigin, cntrTetra,
                                 cntrImageWidth, cntrImageHeight );
@@ -256,9 +256,9 @@ void vDrawScreen( void )
 	int cntrSprites;
 	int* screenColor = ipGetScreenColor();
 	SDL_SetRenderDrawColor( window_getRenderer( window_getPointer() ),
-        ( *( screenColor + 0 ) >> 0x10 ) & 0xFF,
-        ( *( screenColor + 0 ) >> 0x8 ) & 0xFF,
-        *( screenColor + 0 ) & 0xFF,
+        ( *( screenColor + 0 ) >> 0x10 ) & 0xff,
+        ( *( screenColor + 0 ) >> 0x8 ) & 0xff,
+        *( screenColor + 0 ) & 0xff,
         *( screenColor + 2 ) );
 	SDL_RenderClear( window_getRenderer( window_getPointer() ));
 	for( cntrSprites = 0; cntrSprites < 2; cntrSprites++ )
