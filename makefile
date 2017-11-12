@@ -3,7 +3,7 @@ COMPLR = gcc
 SRCDIR = src
 BUILDDIR = build
 BINDIR = bin
-PROG = $(BINDIR)/ballad
+PROG = $(BINDIR)/tetraeditor
 
 SOURCES = $(shell find $(SRCDIR) -type f -name *.c)
 OBJECTS = $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.c=.o))
