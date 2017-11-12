@@ -1,38 +1,30 @@
-# the compiler: gcc for C, g++ for C++
-# CC = g++
-CC = gcc
+COMPLR = gcc
 
 SRCDIR = src
 BUILDDIR = build
-TARGET = bin/ballad
+BINDIR = bin
+PROG = $(BINDIR)/ballad
 
-SRCEXT = c
-SOURCES = $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
-OBJECTS = $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+SOURCES = $(shell find $(SRCDIR) -type f -name *.c)
+OBJECTS = $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.c=.o))
 
-# compiler flags
-# -g adds debugging information to the executable file
-# -Wall turns on most, but not all, compiler warnings
 CFLAGS = -g -Wall -ansi -pedantic
-# includes and libs
 INC = -I/usr/include/SDL2/
 HEAD = -Iinclude
 LIB_LOOK = -L/usr/lib/
-# -fPIC fixes truncation problem that appeared for some reason
 LIB = -lSDL2
 
-# all: $(TARGET)
-
-$(TARGET): $(OBJECTS)
-	@echo "$(CC) $^ -o $(TARGET) $(LIB_LOOK) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB_LOOK) $(LIB);
+$(PROG): $(OBJECTS)
+	@mkdir -p $(BINDIR)
+	@touch $(PROG)
+	@echo "$(COMPLR) $^ -o $(PROG) $(LIB_LOOK) $(LIB)"; $(COMPLR) $^ -o $(PROG) $(LIB_LOOK) $(LIB);
 	
-$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(BUILDDIR)
-	@echo "$(CC) $(CFLAGS) $(INC) $(HEAD) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) $(HEAD) -c -o $@ $<
+	@echo "$(COMPLR) $(CFLAGS) $(INC) $(HEAD) -c -o $@ $<"; $(COMPLR) $(CFLAGS) $(INC) $(HEAD) -c -o $@ $<
+
+tags:
+	@echo "ctags -R src/* include/*"; ctags -R src/* include/*
 
 clean:
-	@echo "$(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
-
-
-# This is the original working version
-# gcc -I/usr/include/SDL2 ballad.c -o ballad -L/usr/lib -lSDL2
+	@echo "$(RM) -r $(BUILDDIR) $(PROG)"; $(RM) -r $(BUILDDIR) $(PROG)

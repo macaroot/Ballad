@@ -3,10 +3,20 @@
  * and may not be used for commercial use without written permission.
  * Fair Use applies, naturally.
  */
-#ifndef LOGIC_H
-#define LOGIC_H
+#ifndef STATE_H
+#define STATE_H
 
-void manage_input(void);
-void run_loop(void);
+enum Mode {
+	PLAY,
+	QUIT
+} mode;
+
+struct State {
+	int videoCreated;
+	int windowCount;
+	int xcursor;
+	int ycursor;
+	int clicked;
+} state;
 
 #endif

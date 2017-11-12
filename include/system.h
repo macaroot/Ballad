@@ -3,10 +3,10 @@
  * and may not be used for commercial use without written permission.
  * Fair Use applies, naturally.
  */
-#ifndef LOGIC_H
-#define LOGIC_H
+#ifndef SYSTEM_H
+#define SYSTEM_H
 
-void manage_input(void);
-void run_loop(void);
+int begin_system(void);
+int terminate_system(void);
 
 #endif

@@ -3,212 +3,102 @@
  * and may not be used for commercial use without written permission.
  * Fair Use applies, naturally.
  */
-/* SDL2 includes */
-#include <SDL.h>
-/* Standard C includes */
 #include <stdio.h>
-/* .h includes */
-#include "logic.h"
-#include "graphics.h"
-#include "data.h"
+#include "system.h"
+#include "state.h"
+#include "visuals.h"
 
-/*****************************************************************************
- * Getsetted variables                                                       *
- *****************************************************************************/
-
-struct sSpriteList
-/*{{{*/
+static void fetch_file(char *path, int img[], size_t size)
 {
-	int modusFlux;
-	int modusFlags;
-	int position[2];
-	int* graphic;
-};
-sSPRITELIST sSprite[10];/*}}}*/
-
-/*****************************************************************************
- * Local variables                                                           *
- *****************************************************************************/
-
-typedef enum eGamestate
-/*{{{*/
-{
-	QUIT,
-	PLAY
-} eGAMESTATE;
-eGAMESTATE gamestateMain;/*}}}*/
-
-typedef struct sMouseEntity sMOUSE;
-/*{{{*/
-struct sMouseEntity
-{
-	int modusFlux;
-	int modusFlags;
-	int position[2];
-	int pressed;
-	int* graphic;
-};
-sMOUSE mouseMain;/*}}}*/
-
-typedef struct sSquareEntity sSQUARE;
-struct sSquareEntity
-/*{{{*/
-{
-	int modusFlux;
-	int modusFlags;
-	int position[2];
-	int* graphic;
-};
-sSQUARE sSquare;/*}}}*/
-
-/*****************************************************************************
- * Getset definitions                                                        *
- *****************************************************************************/
-
-void* spriteList_getPointer( void )
-/*{{{*/
-{
-	return sSprite;
+	FILE *fp;
+	fp = fopen(path, "rb");
+	if(!fp) {
+		printf("Couldn't open file\n");
+		goto fail;
+	}
+	fread(img, size, 1, fp);
+	fclose(fp);
+fail:{}
 }
-int spriteList_getModusFlags( sSPRITELIST* p, int index )
-{
-	return p[index].modusFlags;
-}
-void spriteList_setModusFlags( sSPRITELIST* p, int index, int newInt )
-{
-	p[index].modusFlags = newInt;
-}
-int spriteList_getModusFlux( sSPRITELIST* p, int index )
-{
-	return p[index].modusFlux;
-}
-void spriteList_setModusFlux( sSPRITELIST* p, int index, int newInt )
-{
-	p[index].modusFlux = newInt;
-}
-void spriteList_getPosition( sSPRITELIST* p, int index, int** fetcher )
-{
-	*fetcher = p[index].position;
-}
-void spriteList_setPosition( sSPRITELIST* p, int index, int* newArr )
-{
-	p[index].position[0] = newArr[0];
-	p[index].position[1] = newArr[1];
-}
-int* spriteList_getGraphic( sSPRITELIST* p, int index )
-{
-	return p[index].graphic;
-}
-void spriteList_setGraphic( sSPRITELIST* p, int index, int* newArr )
-{
-	p[index].graphic = newArr;
-}/*}}}*/
 
-/*****************************************************************************
- * Local                                                                     *
- *****************************************************************************/
-
-/* Initialize mouse */
-void generateMouse( sMOUSE* p )
-/*{{{*/
+void manage_input()
 {
-	p->modusFlags = 0;
-	p->modusFlux = 0;
-	p->graphic = imgCursor;
-	p->pressed = 0;
-	p->position[0] = 0;
-	p->position[1] = 0;
-}/*}}}*/
-
-void generateSquare( sSQUARE* p )
-/*{{{*/
-{
-	p->modusFlags = 0;
-	p->modusFlux = 0;
-	p->graphic = imgSquare;
-	p->position[0] = 0;
-	p->position[1] = 0;
-}/*}}}*/
-
-/* Catch input and set flags */
-void vInputManager( void )
-/*{{{*//*{{{*//*
- * - SDL2 event handle
- * - PollEvent is event queue
- *//*}}}*/
-{
-	SDL_Event sdlE;
-	SDL_GetMouseState( &mouseMain.position[0], &mouseMain.position[1] );
-	while( SDL_PollEvent( &sdlE ) != 0 )
-	{
-		if( sdlE.type == SDL_QUIT )
-		{
-			gamestateMain = QUIT;
-		}
-		if( sdlE.type == SDL_KEYDOWN )
-		{
-			switch( sdlE.key.keysym.sym )
-			{
-				case SDLK_ESCAPE: ;
-					gamestateMain = QUIT;
-					break;
-				default:
-					return;
+	SDL_Event event;
+	SDL_GetMouseState(&state.xcursor, &state.ycursor);
+	state.clicked = 0;
+	while(SDL_PollEvent(&event) != 0) {
+		if(event.type == SDL_QUIT)
+			mode = QUIT;
+		if(event.type == SDL_KEYDOWN) {
+			switch(event.key.keysym.sym) {
+			case SDLK_ESCAPE :
+				mode = QUIT;
+				break;
+			default:
+				return;
 			}
 		}
-		if( sdlE.type == SDL_MOUSEBUTTONDOWN )
-		{
-			mouseMain.pressed = 1;
-		}
-		if( sdlE.type == SDL_MOUSEBUTTONUP )
-		{
-			mouseMain.pressed = 0;
+		if(event.type == SDL_MOUSEBUTTONDOWN) {
+			state.clicked = 1;
 		}
 	}
-}/*}}}*/
+}
 
-/* Game logic, should manage near to everything */
-void vLogic( void )
-/*{{{*/
+static void print_reference_palette(void)
 {
-	mouseMain.modusFlags = 1;
-	mouseMain.modusFlux = 0x7;
-	spriteList_setModusFlags( sSprite, 0, mouseMain.modusFlags );
-	spriteList_setModusFlux( sSprite, 0, mouseMain.modusFlux );
-	spriteList_setPosition( sSprite, 0, mouseMain.position );
-	spriteList_setGraphic( sSprite, 0, mouseMain.graphic );
-	spriteList_setGraphic( sSprite, 1, sSquare.graphic );
-	if( mouseMain.pressed )
-	{
-		spriteList_setPosition( sSprite, 1, mouseMain.position );
+	int temp;
+	int xgrid;
+	int ygrid;
+	int cntr;
+	for(ygrid = 0; ygrid < 0x4; ++ygrid) {
+		for(xgrid = 0; xgrid < 0x10; ++xgrid) {
+			temp = 0xc0+cntr;
+			draw_rectangle(&windows[0], temp, 0x28, 0x28,
+xgrid*0x28, ygrid*0x28);
+			++cntr;
+		}
 	}
-}/*}}}*/
+}
 
-/* Pre-loop setups */
-void vSetupGame( void )
-/*{{{*/
+/* Hooks */
+void run_loop(void)
 {
-	gamestateMain = PLAY;
-	vReadFiles();
-	generateMouse( &mouseMain );
-	generateSquare( &sSquare );
-}/*}}}*/
-
-/* Everything in the game itself happens here */
-void vTheLoop( void )
-/*{{{*//*{{{*//*
- * - End game when state is QUIT
- * - SDL_Delay() halts everything for ms, so might cause slowdowns at some
- *   point TODO What else needs time.  SDL_GetTicks() fetches how long SDL
- *   library has been initialized in ms 16ms about 63FPS, 33ms is about 33FPS
- *//*}}}*/
-{
-	vSetupGame();
-	while( gamestateMain != QUIT )
-	{
-		SDL_Delay(33);
-		vInputManager();
-		vLogic();
-		vDrawScreen();
+	struct Window mainWin;
+	int cursor[0x5];
+	int tetras[0x10e][0xa4] = {0};
+	int curTetra;
+	int futTetra;
+	int xtetras;
+	int ytetras;
+	mainWin = windows[0];
+	curTetra = 0xc0c00000;
+	futTetra = 0xc5c50000;
+	fetch_file("include/visual/test.timg", cursor, sizeof(cursor));
+	mode = PLAY;
+	while(mode != QUIT) {
+		SDL_Delay(0x64);
+		manage_input();
+		draw_screen_base(&mainWin, 0x3a);
+		draw_rectangle(&mainWin, 0xbf, 0x438, 0x40, 0, 0);
+		draw_rectangle(&mainWin, 0xfe, 0x438, 0x290, 0, 0x40);
+		display_tetra_selector(&mainWin, curTetra, 0x10, 0x18);
+		display_tetra_selector(&mainWin, futTetra, 0x50, 0x18);
+		display_alpha_selector(&mainWin, curTetra, 0x10, 0x1);
+		display_alpha_selector(&mainWin, futTetra, 0x50, 0x1);
+		if(state.clicked && state.ycursor > 0x40) {
+			int x = state.xcursor/4;
+			int y = state.ycursor/4;
+			tetras[x][y] = futTetra;
+		}
+		for(ytetras = 0; ytetras < 0x10e; ++ytetras) {
+			for(xtetras = 0; xtetras < 0xa4; ++xtetras) {
+				if(tetras[xtetras][ytetras])
+					draw_tetra(&mainWin,
+tetras[xtetras][ytetras], xtetras*0x4, ytetras*0x4);
+			}
+		}
+		draw_image(&mainWin, cursor, 0, state.xcursor,
+state.ycursor);
+		update_screen();
 	}
-}/*}}}*/
+}
