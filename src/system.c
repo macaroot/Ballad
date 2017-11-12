@@ -104,6 +104,7 @@ static int start_visuals(void)
 		goto fail;
 	if(!generate_window(&windows))
 		goto fail;
+	SDL_ShowCursor(SDL_DISABLE);
 	return 1;
 fail:
 	return 0;

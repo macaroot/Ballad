@@ -60,6 +60,15 @@ xgrid*0x28, ygrid*0x28);
 	}
 }
 
+static void manage_menu(int *curTetra, int *futTetra)
+{
+	if(state.xcursor > 0x10 && state.xcursor < 0x18) {
+		*curTetra = *curTetra ^ 0x1;
+	} else if(state.xcursor > 0x50 && state.xcursor < 0x58) {
+		*futTetra = *futTetra ^ 0x1;
+	}
+}
+
 /* Hooks */
 void run_loop(void)
 {
@@ -71,8 +80,8 @@ void run_loop(void)
 	int xtetras;
 	int ytetras;
 	mainWin = windows[0];
-	curTetra = 0xc0c00000;
-	futTetra = 0xc5c50000;
+	curTetra = 0xc0c30000;
+	futTetra = 0xc5cd0000;
 	fetch_file("include/visual/test.timg", cursor, sizeof(cursor));
 	mode = PLAY;
 	while(mode != QUIT) {
@@ -89,6 +98,8 @@ void run_loop(void)
 			int x = state.xcursor/4;
 			int y = state.ycursor/4;
 			tetras[x][y] = futTetra;
+		} else if(state.clicked) {
+			manage_menu(&curTetra, &futTetra);
 		}
 		for(ytetras = 0; ytetras < 0x10e; ++ytetras) {
 			for(xtetras = 0; xtetras < 0xa4; ++xtetras) {
