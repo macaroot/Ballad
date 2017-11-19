@@ -98,8 +98,6 @@ fail:
 
 static int start_visuals(void)
 {
-	state.videoCreated = 0;
-	state.windowCount = 0;
 	if(!init_modules())
 		goto fail;
 	if(!generate_window(&windows))

@@ -16,6 +16,7 @@ struct Window {
 	int height;
 } *windows;
 
+void display_palette_selectors(struct Window *wp, int xorig, int yorig);
 void display_tetra_selector(struct Window *wp, int tetra, int xorig,
 int yorig);
 void display_alpha_selector(struct Window *wp, int tetra, int xorig,

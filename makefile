@@ -23,6 +23,9 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(BUILDDIR)
 	@echo "$(COMPLR) $(CFLAGS) $(INC) $(HEAD) -c -o $@ $<"; $(COMPLR) $(CFLAGS) $(INC) $(HEAD) -c -o $@ $<
 
+run:
+	@echo "./$(PROG)"; ./$(PROG)
+
 tags:
 	@echo "ctags -R src/* include/*"; ctags -R src/* include/*
 

@@ -64,6 +64,10 @@ static const int PALETTER[0xc0] = {
 };
 
 /* Hooks */
+void display_palette_selectors(struct Window *wp, int xorig, int yorig)
+{
+}
+
 void display_tetra_selector(struct Window *wp, int tetra, int xorig,
 int yorig)
 {
@@ -170,15 +174,18 @@ int xorig, int yorig)
 	int col;
 	int alp;
 	SDL_Rect rect;
+	alp = ALPHA[tone >> 0x6 & 0x3];
+	if(!alp)
+		goto end;
 	rect.w = width;
 	rect.h = height;
 	rect.x = xorig;
 	rect.y = yorig;
 	col = (tone & 0x3f)*0x3;
-	alp = ALPHA[tone >> 0x6 & 0x3];
 	SDL_SetRenderDrawColor(wp->renderer, PALETTER[col],
 PALETTER[col+0x1], PALETTER[col+0x2], alp);
 	SDL_RenderFillRect(wp->renderer, &rect);
+end:{}
 }
 
 void draw_tetra(struct Window *wp,int tetra, int xorig, int yorig)
@@ -192,6 +199,10 @@ void draw_tetra(struct Window *wp,int tetra, int xorig, int yorig)
 	int xgrid;
 	int ygrid;
 	int cntr;
+	fgalp = ALPHA[tetra >> 0x16 & 0x3];
+	bgalp = ALPHA[tetra >> 0x1e & 0x3];
+	if(!(fgalp || bgalp))
+		goto end;
 	fgcol = (tetra >> 0x10 & 0x3f)*0x3;
 	bgcol = (tetra >> 0x18 & 0x3f)*0x3;
 	fgcols[0] = PALETTER[fgcol];
@@ -200,9 +211,37 @@ void draw_tetra(struct Window *wp,int tetra, int xorig, int yorig)
 	bgcols[0] = PALETTER[bgcol];
 	bgcols[0x1] = PALETTER[bgcol+0x1];
 	bgcols[0x2] = PALETTER[bgcol+0x2];
-	fgalp = ALPHA[tetra >> 0x16 & 0x3];
-	bgalp = ALPHA[tetra >> 0x1e & 0x3];
 	cntr = 0;
+	if(fgalp && bgalp)
+		goto both;
+	if(!bgalp)
+		goto fg;
+	for(ygrid = 0; ygrid < 0x4; ++ygrid) {
+		for(xgrid = 0; xgrid < 0x4; ++xgrid) {
+			if(!((tetra >> cntr) & 0x1)) {
+				SDL_SetRenderDrawColor(wp->renderer,
+bgcols[0], bgcols[0x1], bgcols[0x2], bgalp);
+				SDL_RenderDrawPoint(wp->renderer, xorig+xgrid,
+yorig+ygrid);
+			}
+			++cntr;
+		}
+	}
+	goto end;
+fg:
+	for(ygrid = 0; ygrid < 0x4; ++ygrid) {
+		for(xgrid = 0; xgrid < 0x4; ++xgrid) {
+			if((tetra >> cntr) & 0x1) {
+				SDL_SetRenderDrawColor(wp->renderer,
+fgcols[0], fgcols[0x1], fgcols[0x2], fgalp);
+				SDL_RenderDrawPoint(wp->renderer, xorig+xgrid,
+yorig+ygrid);
+			}
+			++cntr;
+		}
+	}
+	goto end;
+both:
 	for(ygrid = 0; ygrid < 0x4; ++ygrid) {
 		for(xgrid = 0; xgrid < 0x4; ++xgrid) {
 			if((tetra >> cntr) & 0x1)
@@ -216,6 +255,7 @@ yorig+ygrid);
 			++cntr;
 		}
 	}
+end:{}
 }
 
 void draw_image(struct Window *wp, int *timg, int frame,
